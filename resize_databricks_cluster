@@ -1,0 +1,37 @@
+import requests
+import json
+
+def update_databricks_cluster_autoscale(cluster_id, min_workers, max_workers):
+    # Obter o token armazenado nas variáveis do Automation
+    DATABRICKS_TOKEN = get_automation_variable("DatabricksToken")
+    DATABRICKS_INSTANCE = "https://<sua-instancia-databricks>"
+    
+    url = f"{DATABRICKS_INSTANCE}/api/2.0/clusters/edit"
+    headers = {
+        "Authorization": f"Bearer {DATABRICKS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "cluster_id": cluster_id,
+        "autoscale": {
+            "min_workers": min_workers,
+            "max_workers": max_workers
+        }
+    }
+    
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    
+    if response.status_code == 200:
+        print(f"Configuração de autoscale do cluster {cluster_id} atualizada com sucesso.")
+    else:
+        print(f"Falha ao atualizar a configuração de autoscale do cluster {cluster_id}. Status Code: {response.status_code}")
+        print(f"Detalhes do erro: {response.text}")
+
+# Obter parâmetros de entrada
+import sys
+if __name__ == "__main__":
+    cluster_id = sys.argv[1]
+    min_workers = int(sys.argv[2])
+    max_workers = int(sys.argv[3])
+    
+    update_databricks_cluster_autoscale(cluster_id, min_workers, max_workers)
